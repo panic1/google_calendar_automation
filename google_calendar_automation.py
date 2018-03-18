@@ -25,7 +25,7 @@ except ImportError:
     flags = None
 
 # If modifying these scopes, delete your previously saved credentials
-# at ~/.credentials/calendar-python-quickstart.json
+# at ~/.credentials/google_calendar_automation.json
 SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Google Calendar Automation'
@@ -69,7 +69,7 @@ def get_credentials():
     if not os.path.exists(credential_dir):
         os.makedirs(credential_dir)
     credential_path = os.path.join(credential_dir,
-                                   'calendar-python-quickstart.json')
+                                   'google_calendar_automation.json')
 
     store = Storage(credential_path)
     credentials = store.get()
@@ -128,7 +128,9 @@ def main():
         start = dateutil.parser.parse(event['start']['dateTime']) - delta
         end = dateutil.parser.parse(event['end']['dateTime']) + delta
         if (now >= start and now < end):
+            print("we are in progress")
             in_progress = True
+            continue
 
     state = get_state(conf, section)
 
