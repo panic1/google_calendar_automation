@@ -12,6 +12,11 @@ from oauth2client.file import Storage
 import datetime
 
 from ConfigParser import RawConfigParser, NoSectionError, NoOptionError
+import dateutil.parser
+import pytz
+import subprocess
+
+from enum import Enum
 
 try:
     import argparse
@@ -26,15 +31,24 @@ CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Google Calendar Automation'
 CALENDAR_CONF_FILE = 'calendar.conf'
 
-def get_calendarId():
-    """Gets the calendarId from the configuration file
+class State(Enum):
+    INACTIVE = 0
+    STARTING = 1
+    STOPPING = 2
+    ACTIVE   = 3
 
-    if nothing is found, the default will be "primary"
-    """
+def get_config():
     conf = RawConfigParser()
     conf.read(CALENDAR_CONF_FILE)
 
-    section = conf.sections()[0]
+    return conf
+
+def get_calendarId(conf, section):
+    """Gets the calendarId from the configuration
+
+    if nothing is found, the default will be "primary"
+    """
+    
     try:
         return conf.get(section, "calendarId")
     except:
@@ -69,29 +83,62 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
-def main():
-    """Shows basic usage of the Google Calendar API.
-
-    Creates a Google Calendar API service object and outputs a list of the next
-    10 events on the user's calendar.
-    """
+def get_events(calendarId, max_results):
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
 
     now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-    print('Getting the upcoming 10 events')
     eventsResult = service.events().list(
-        calendarId=get_calendarId(), timeMin=now, maxResults=10, singleEvents=True,
+        calendarId=calendarId, timeMin=now, maxResults=max_results, singleEvents=True,
         orderBy='startTime').execute()
-    events = eventsResult.get('items', [])
+    return eventsResult.get('items', [])
 
+def get_state(conf, section):
+    cmd = conf.get(section, 'status')
+    print("checking things: {}".format(cmd))
+    returnstr = subprocess.check_output(conf.get(section, 'status'), shell=True)
+    print("checking things: {}".format(returnstr))
+    
+    return State.INACTIVE
+
+def run_start(conf, section):
+    cmd = conf.get(section, 'start')
+    print("starting things: {}".format(cmd))
+    subprocess.call(cmd, shell=True)
+
+def run_end(conf, section):
+    cmd = conf.get(section, 'end')
+    print("stopping things: {}".format(cmd))
+    subprocess.call(cmd, shell=True)
+
+def main():
+    conf = get_config()
+
+    # for section in conf.sections():
+    section = conf.sections()[0]  # for now only run for the first section in the configuration
+    events = get_events(get_calendarId(conf, section), 10)
+    
+    now = datetime.datetime.now(pytz.utc)
+    in_progress = False
     if not events:
         print('No upcoming events found.')
     for event in events:
-        start = event['start'].get('dateTime', event['start'].get('date'))
-        print(start, event['summary'])
+        start = dateutil.parser.parse(event['start']['dateTime'])
+        end = dateutil.parser.parse(event['end']['dateTime'])
+        if (now >= start and now < end):
+            in_progress = True
 
+    state = get_state(conf, section)
+
+    if (in_progress):
+        # a calendar item is in progress right now, if the state is not active then start it
+        if (state == State.INACTIVE or state == State.STOPPING):
+            run_start(conf, section)
+    else:
+        # a calendar item is not in progress now, if the state is active then end it
+        if (state == State.ACTIVE or state == State.STARTING):
+            run_end(conf, section)
 
 if __name__ == '__main__':
     main()

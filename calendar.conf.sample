@@ -1,3 +1,5 @@
 [calendar]
 calendarId=primary
-
+start=./scripts/sample_start.sh
+stop=./scripts/sample_stop.sh
+status=./scripts/sample_status.sh

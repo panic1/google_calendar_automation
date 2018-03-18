@@ -1,2 +1,4 @@
-json
 google-api-python-client
+python-dateutil
+pytz
+enum
