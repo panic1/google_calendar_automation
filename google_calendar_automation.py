@@ -107,8 +107,8 @@ def run_start(conf, section):
     print("starting things: {}".format(cmd))
     subprocess.call(cmd, shell=True)
 
-def run_end(conf, section):
-    cmd = conf.get(section, 'end')
+def run_stop(conf, section):
+    cmd = conf.get(section, 'stop')
     print("stopping things: {}".format(cmd))
     subprocess.call(cmd, shell=True)
 
@@ -141,7 +141,7 @@ def main():
     else:
         # a calendar item is not in progress now, if the state is active then end it
         if (state == State.ACTIVE or state == State.STARTING):
-            run_end(conf, section)
+            run_stop(conf, section)
 
 if __name__ == '__main__':
     main()
