@@ -100,7 +100,7 @@ def get_state(conf, section):
     returnstr = subprocess.check_output(conf.get(section, 'status'), shell=True)
     print("checking things: {}".format(returnstr))
     
-    return State.INACTIVE
+    return State(int(returnstr))
 
 def run_start(conf, section):
     cmd = conf.get(section, 'start')
@@ -120,12 +120,13 @@ def main():
     events = get_events(get_calendarId(conf, section), 10)
     
     now = datetime.datetime.now(pytz.utc)
+    delta = datetime.timedelta(minutes=2)
     in_progress = False
     if not events:
         print('No upcoming events found.')
     for event in events:
-        start = dateutil.parser.parse(event['start']['dateTime'])
-        end = dateutil.parser.parse(event['end']['dateTime'])
+        start = dateutil.parser.parse(event['start']['dateTime']) - delta
+        end = dateutil.parser.parse(event['end']['dateTime']) + delta
         if (now >= start and now < end):
             in_progress = True
 
