@@ -9,6 +9,11 @@ STATE_FILE="${2:-/var/run/panicloud/state}"
 # stopping = 2
 # active = 3
 
+if [ ! -f ${STATE_FILE} ]; then
+    mkdir $(dirname ${STATE_FILE})
+    echo 0 > ${STATE_FILE}
+fi
+
 STATE=$(cat ${STATE_FILE})
 
 if [ "$STATE" = "0" -o "$STATE" = "3" ]; then
