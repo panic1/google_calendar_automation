@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 from __future__ import print_function
 import httplib2
@@ -11,7 +11,7 @@ from oauth2client.file import Storage
 
 import datetime
 
-from ConfigParser import RawConfigParser, NoSectionError, NoOptionError
+from configparser import RawConfigParser, NoSectionError, NoOptionError
 import dateutil.parser
 import pytz
 import subprocess
