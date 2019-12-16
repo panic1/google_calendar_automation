@@ -1,6 +1,6 @@
 #! /bin/bash
 
-STATE_FILE="${1:-/var/run/panicloud/state}"
+STATE_FILE="${1:-/usr/share/panicloud/state}"
 GPIO_NUM=4
 
 # the relay to power on the server is controller bu gpio 4

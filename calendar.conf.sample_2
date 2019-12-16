@@ -1,5 +1,5 @@
 [Panicloud]
 calendarId=<index>@group.calendar.google.com
-start=./scripts/panicloud_start.sh /var/run/panicloud/state
-stop=./scripts/panicloud_stop.sh panicloud /var/run/panicloud/state
-status=./scripts/panicloud_status.sh panicloud /var/run/panicloud/state
+start=./scripts/panicloud_start.sh /usr/share/panicloud/state
+stop=./scripts/panicloud_stop.sh panicloud /usr/share/panicloud/state
+status=./scripts/panicloud_status.sh panicloud /usr/share/panicloud/state

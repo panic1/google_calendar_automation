@@ -2,7 +2,7 @@
 
 # ipaddress or hostname
 IPADDRESS="${1:-panicloud}"
-STATE_FILE="${2:-/var/run/panicloud/state}"
+STATE_FILE="${2:-/usr/share/panicloud/state}"
 
 # inactive = 0
 # starting = 1
